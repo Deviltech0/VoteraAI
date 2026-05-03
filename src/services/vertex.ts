@@ -395,8 +395,7 @@ export class ElectionVertexService {
         return this.keywordFallback(sanitised);
       }
 
-      const faq = ELECTION_FAQ_CORPUS[bestIndex];
-      if (!faq) {return this.keywordFallback(sanitised);}
+      const faq = ELECTION_FAQ_CORPUS[bestIndex] as typeof ELECTION_FAQ_CORPUS[number];
 
       return {
         question: faq.question,
@@ -508,8 +507,7 @@ export class ElectionVertexService {
       return null;
     }
 
-    const faq = ELECTION_FAQ_CORPUS[match.index];
-    if (!faq) {return null;}
+    const faq = ELECTION_FAQ_CORPUS[match.index] as typeof ELECTION_FAQ_CORPUS[number];
     return { question: faq.question, answer: faq.answer, score: 0.6 };
   }
 }

@@ -11,6 +11,7 @@ import { ElectionMapsService } from '../services/maps';
 import { escapeHtml, sanitizeFull } from '../utils/sanitize';
 import { announce } from '../utils/a11y';
 import { StatusFeedback } from '../utils/status-feedback';
+import { renderSafeHTML } from '../utils/dom';
 
 /**
  * Maps-based polling location finder widget.
@@ -34,8 +35,8 @@ export class MapsWidget {
       if (container) {
         container.style.display = 'block';
         container.style.height = '400px';
-        // SAFE: Empty string assignment is inherently safe from XSS.
-        container.innerHTML = ''; // clear comment
+        // SAFE: replaceChildren is inherently safe from XSS.
+        container.replaceChildren(); // clear comment
         this.maps.initMap('maps-embed-container');
       }
     }
@@ -58,7 +59,7 @@ export class MapsWidget {
     widget.setAttribute('aria-label', 'Find polling locations using Google Maps');
 
     // SAFE: Static HTML template, no user data interpolated.
-    widget.innerHTML = `
+    renderSafeHTML(widget, `
       <h3 style="color: var(--navy); margin-bottom: var(--space-3);">
         📍 Find Election Offices & Polling Booths
         <span style="font-size: var(--text-xs); color: var(--text-muted); font-weight: 400;">— powered by Google Maps</span>
@@ -138,8 +139,8 @@ export class MapsWidget {
     }
 
     // SAFE: Static HTML template, no user data interpolated.
-    results.innerHTML =
-      '<p style="text-align: center; color: var(--text-muted); padding: var(--space-4);">🔍 Searching for polling locations...</p>';
+    renderSafeHTML(results,
+      '<p style="text-align: center; color: var(--text-muted); padding: var(--space-4);">🔍 Searching for polling locations...</p>');
     announce('Searching for polling locations near ' + sanitised);
 
     if (!this.maps.isConfigured()) {
@@ -172,12 +173,12 @@ export class MapsWidget {
     const cards = locations.map((loc) => this.renderLocationCard(loc)).join('');
 
     // SAFE: Content is escaped via escapeHtml before interpolation.
-    container.innerHTML = `
+    renderSafeHTML(container, `
       <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-3);">
         Found ${locations.length} result(s) for "${escapeHtml(query)}"
       </p>
       ${cards}
-    `;
+    `);
   }
 
   /**
@@ -227,7 +228,7 @@ export class MapsWidget {
     if (!isNativeMap) {
       const embedUrl = this.maps.generateMapsEmbedUrl(query);
       // SAFE: Content is escaped via escapeHtml before interpolation.
-      embedContainer.innerHTML = `
+      renderSafeHTML(embedContainer, `
         <iframe
           src="${escapeHtml(embedUrl)}"
           width="100%"
@@ -239,7 +240,7 @@ export class MapsWidget {
           referrerpolicy="no-referrer-when-downgrade"
           title="Google Maps showing polling locations near ${escapeHtml(query)}"
         ></iframe>
-      `;
+      `);
     }
 
     embedContainer.style.display = 'block';
@@ -253,7 +254,7 @@ export class MapsWidget {
    */
   private renderErrorState(container: HTMLElement, errorMsg: string | null): void {
     // SAFE: Content is escaped via escapeHtml before interpolation.
-    container.innerHTML = `
+    renderSafeHTML(container, `
       <div style="text-align: center; padding: var(--space-4); color: var(--text-muted);">
         <p style="color: #ef4444; margin-bottom: var(--space-2); font-weight: 500;">
           ⚠️ ${escapeHtml(errorMsg || 'Failed to find polling locations.')}
@@ -262,6 +263,6 @@ export class MapsWidget {
           You can also try the official <a href="https://electoralsearch.eci.gov.in/" target="_blank" rel="noopener noreferrer" style="color: var(--navy); font-weight: 600; text-decoration: underline;">ECI Electoral Search</a>.
         </p>
       </div>
-    `;
+    `);
   }
 }

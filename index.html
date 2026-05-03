@@ -12,6 +12,7 @@
     />
     <meta name="keywords" content="Indian elections, voter education, Lok Sabha, Rajya Sabha, State Assembly, Panchayat, Municipal elections, ECI, Election Commission of India, voter registration, polling booth, EPIC card, Gemini AI" />
     <meta name="author" content="Votera AI" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.googleapis.com https://*.google.com; img-src 'self' data: https://*.googleapis.com;" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph -->
@@ -100,12 +101,12 @@
         <div class="header-controls">
           <div id="header-translation-widget"></div>
           <!-- Font Size Toggle (WCAG 2.2 — Text Resizing) -->
-          <div class="font-size-controls" role="group" aria-label="Font size controls">
-            <button data-font-size="small" class="font-size-btn" aria-pressed="false" aria-label="Decrease font size" title="Small text">A-</button>
-            <button data-font-size="default" class="font-size-btn" aria-pressed="true" aria-label="Default font size" title="Default text">A</button>
-            <button data-font-size="large" class="font-size-btn" aria-pressed="false" aria-label="Increase font size" title="Large text">A+</button>
+          <div class="font-size-controls" role="group" aria-label="Font size controls" aria-controls="main-content">
+            <button data-font-size="small" class="font-size-btn" aria-pressed="false" aria-label="Decrease font size" title="Small text" aria-controls="main-content">A-</button>
+            <button data-font-size="default" class="font-size-btn" aria-pressed="true" aria-label="Default font size" title="Default text" aria-controls="main-content">A</button>
+            <button data-font-size="large" class="font-size-btn" aria-pressed="false" aria-label="Increase font size" title="Large text" aria-controls="main-content">A+</button>
           </div>
-          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" title="Toggle theme">🌙</button>
+          <button class="theme-toggle" id="theme-toggle" aria-expanded="false" aria-pressed="false" aria-label="Toggle dark/light theme" title="Toggle theme" aria-controls="main-content">🌙</button>
         </div>
       </div>
     </header>

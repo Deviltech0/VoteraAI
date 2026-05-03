@@ -16,6 +16,7 @@ import { store } from '../state/store';
 import { announce, setActiveNavSection } from '../utils/a11y';
 import { escapeHtml } from '../utils/sanitize';
 import { JourneyStageId } from '../types/index';
+import { renderSafeHTML } from '../utils/dom';
 
 /**
  * Build and manage the accessible fallback layer.
@@ -46,7 +47,7 @@ export class AccessibleFallback {
    */
   private render(): void {
     // SAFE: Static HTML template, no user data interpolated.
-    this.container.innerHTML = `
+    renderSafeHTML(this.container, `
       <h2 class="sr-only">Election Journey — Accessible Text Interface</h2>
       <p class="sr-only">
         This is the full text alternative to the 3D visual experience.
@@ -74,7 +75,7 @@ export class AccessibleFallback {
         </ul>
       </nav>
       <div id="a11y-stage-panels" aria-live="polite"></div>
-    `;
+    `);
 
     // Attach keyboard navigation for tab list
     this.setupKeyboardNav();
@@ -92,7 +93,7 @@ export class AccessibleFallback {
 
     // Tab buttons
     // SAFE: ELECTION_STAGES is static application data, no user input.
-    panelsContainer.innerHTML = ELECTION_STAGES.map(
+    renderSafeHTML(panelsContainer, ELECTION_STAGES.map(
       (stage, i) => `
       <button
         role="tab"
@@ -106,7 +107,7 @@ export class AccessibleFallback {
         ${escapeHtml(stage.title)}
       </button>
     `,
-    ).join('');
+    ).join(''));
 
     // Initial panel
     this.updateStagePanel(JourneyStageId.ELIGIBILITY);
@@ -140,7 +141,7 @@ export class AccessibleFallback {
     const pos = getStagePosition(stageId);
 
     // SAFE: Static HTML template, no user data interpolated.
-    content.innerHTML = `
+    renderSafeHTML(content, `
       <div
         role="tabpanel"
         id="panel-${stage.id}"
@@ -168,7 +169,7 @@ export class AccessibleFallback {
             .join('')}
         </ol>
       </div>
-    `;
+    `);
 
     // Update tab states
     const tabs = document.querySelectorAll('#journey-stages [role="tab"]');
@@ -189,7 +190,7 @@ export class AccessibleFallback {
     }
 
     // SAFE: ELECTION_TYPES is static application data, no user input.
-    grid.innerHTML = ELECTION_TYPES.map(
+    renderSafeHTML(grid, ELECTION_TYPES.map(
       (type) => `
       <div class="card" role="listitem" style="margin-bottom: var(--space-4);">
         <h3 style="color: var(--navy);">${escapeHtml(type.name)}</h3>
@@ -215,7 +216,7 @@ export class AccessibleFallback {
         </details>
       </div>
     `,
-    ).join('');
+    ).join(''));
   }
 
   /**
@@ -230,7 +231,7 @@ export class AccessibleFallback {
     const events = getAllTimelineEvents();
 
     // SAFE: Events string is pre-sanitised timeline HTML.
-    timeline.innerHTML = events
+    renderSafeHTML(timeline, events
       .map(
         (event) => `
       <div class="card" role="listitem" style="margin-bottom: var(--space-3); border-left: 3px solid ${String(event.priority) === 'critical' ? 'var(--saffron)' : String(event.priority) === 'high' ? 'var(--green-india)' : 'var(--border-subtle)'};">
@@ -245,7 +246,7 @@ export class AccessibleFallback {
       </div>
     `,
       )
-      .join('');
+      .join(''));
   }
 
   /**
@@ -258,7 +259,7 @@ export class AccessibleFallback {
     }
 
     // SAFE: ELECTION_FAQ is static application data, no user input.
-    faqContainer.innerHTML = ELECTION_FAQ.map(
+    renderSafeHTML(faqContainer, ELECTION_FAQ.map(
       (faq) => `
       <details class="card" style="margin-bottom: var(--space-3);">
         <summary style="cursor: pointer; font-weight: 600; color: var(--text-primary);">
@@ -272,7 +273,7 @@ export class AccessibleFallback {
         </p>
       </details>
     `,
-    ).join('');
+    ).join(''));
   }
 
   /**

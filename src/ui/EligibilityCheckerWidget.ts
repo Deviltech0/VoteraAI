@@ -1,5 +1,6 @@
 import { validateVoterAge } from '../utils/validate';
 import { announce } from '../utils/a11y';
+import { renderSafeHTML } from '../utils/dom';
 
 /**
  * Eligibility Checker Widget — Interactive tool for checking voter age.
@@ -30,7 +31,7 @@ export class EligibilityCheckerWidget {
 
   private render(): void {
     // SAFE: Static HTML template, no user data interpolated.
-    this.container.innerHTML = `
+    renderSafeHTML(this.container, `
       <div class="card" style="margin-bottom: var(--space-6); border-left: 3px solid var(--green-india);">
         <h2 style="color: var(--navy); margin-bottom: var(--space-2); font-size: var(--text-xl);">
           ✓ Quick Check: Are you eligible to vote?
@@ -53,7 +54,7 @@ export class EligibilityCheckerWidget {
         </form>
         <div id="eligibility-result" style="margin-top: var(--space-3); font-weight: 600;" aria-live="polite"></div>
       </div>
-    `;
+    `);
 
     this.setupListeners();
   }
