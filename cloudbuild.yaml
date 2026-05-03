@@ -1,0 +1,55 @@
+steps:
+  # Step 1: Install dependencies
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    args: ['ci']
+    id: 'install'
+
+  # Step 2: Run all local validations (lint, typecheck, tests)
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    args: ['run', 'validate']
+    id: 'validate'
+    waitFor: ['install']
+
+  # Step 3: Build the production container with build arguments
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build', 
+      '-t', 'gcr.io/$PROJECT_ID/votera-ai:$COMMIT_SHA',
+      '--build-arg', 'VITE_GEMINI_API_KEY=$_GEMINI_API_KEY',
+      '--build-arg', 'VITE_GOOGLE_MAPS_API_KEY=$_MAPS_API_KEY',
+      '--build-arg', 'VITE_GOOGLE_TRANSLATION_API_KEY=$_TRANSLATION_API_KEY',
+      '.'
+    ]
+    id: 'build-image'
+    waitFor: ['validate']
+
+  # Step 4: Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/votera-ai:$COMMIT_SHA']
+    id: 'push-image'
+    waitFor: ['build-image']
+
+  # Step 5: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'votera-ai'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/votera-ai:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    id: 'deploy'
+    waitFor: ['push-image']
+
+images:
+  - 'gcr.io/$PROJECT_ID/votera-ai:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

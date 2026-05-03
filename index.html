@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO -->
+    <title>Votera AI — Your AI-Powered Indian Election Guide</title>
+    <meta
+      name="description"
+      content="Votera AI helps Indian voters understand every type of election — Lok Sabha, Rajya Sabha, State Assembly, Panchayat, and Municipal. Learn eligibility, registration, timelines, voting methods, and polling-day steps through an interactive AI-powered guide."
+    />
+    <meta name="keywords" content="Indian elections, voter education, Lok Sabha, Rajya Sabha, State Assembly, Panchayat, Municipal elections, ECI, Election Commission of India, voter registration, polling booth, EPIC card, Gemini AI" />
+    <meta name="author" content="Votera AI" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Votera AI — AI-Powered Indian Election Guide" />
+    <meta property="og:description" content="Your AI-powered assistant for understanding Indian elections — eligibility, registration, timelines, and voting steps." />
+    <meta property="og:type" content="website" />
+
+    <!-- Security headers are managed by nginx.conf for production reliability -->
+
+    <!-- Favicon: inline SVG data-URI (zero-asset) -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23FF9F43'/%3E%3Cstop offset='100%25' stop-color='%23F97D09'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='10' y='5' width='80' height='90' rx='10' fill='url(%23g)'/%3E%3Crect x='20' y='40' width='60' height='5' rx='2' fill='rgba(0,0,0,0.2)'/%3E%3Crect x='20' y='55' width='60' height='5' rx='2' fill='rgba(0,0,0,0.2)'/%3E%3Crect x='20' y='70' width='40' height='5' rx='2' fill='rgba(0,0,0,0.2)'/%3E%3Cpath d='M35 15 L45 27 L65 5' stroke='white' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+
+  <body>
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+    <!-- ========== SKIP LINKS (Accessibility) ========== -->
+    <a href="#main-content" class="skip-link" id="skip-to-main">
+      Skip to main content
+    </a>
+    <a href="#election-journey" class="skip-link" id="skip-to-journey">
+      Skip to Election Journey
+    </a>
+    <a href="#election-coach" class="skip-link" id="skip-to-coach">
+      Skip to Election Coach
+    </a>
+
+    <!-- ========== HEADER ========== -->
+    <header role="banner" id="site-header" class="site-header">
+      <div class="authority-line">
+        <span style="display: inline-flex; align-items: center;">
+          <svg viewBox="0 0 900 600" width="18" height="12" aria-hidden="true" style="margin-right: 6px; border-radius: 2px; overflow: hidden;">
+            <rect width="900" height="200" fill="#FF9933"/>
+            <rect y="200" width="900" height="200" fill="#FFFFFF"/>
+            <rect y="400" width="900" height="200" fill="#138808"/>
+            <circle cx="450" cy="300" r="80" fill="none" stroke="#000080" stroke-width="15"/>
+          </svg>
+          Government of India | Election Commission Information Portal
+        </span>
+        <span><a href="#main-content" style="color: inherit; text-decoration: none;">Skip to main content</a></span>
+      </div>
+      <div class="header-inner">
+        <!-- Logo -->
+        <div class="logo" role="img" aria-label="Votera AI logo — geometric ballot symbol in Indian tricolour">
+          <svg viewBox="0 0 40 40" width="36" height="36" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF9F43"/>
+                <stop offset="100%" stop-color="#F97D09"/>
+              </linearGradient>
+            </defs>
+            <rect x="4" y="2" width="32" height="36" rx="4" fill="url(#logo-grad)"/>
+            <rect x="8" y="14" width="24" height="2" rx="1" fill="rgba(0,0,0,0.2)"/>
+            <rect x="8" y="20" width="24" height="2" rx="1" fill="rgba(0,0,0,0.2)"/>
+            <rect x="8" y="26" width="16" height="2" rx="1" fill="rgba(0,0,0,0.2)"/>
+            <path d="M14 6 L18 10 L26 3" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="logo-text">Votera AI</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav role="navigation" aria-label="Primary navigation" id="primary-nav">
+          <ul class="nav-list" role="list">
+            <li><a href="#election-journey" class="nav-link" id="nav-journey" aria-current="true">Journey</a></li>
+            <li><a href="#election-types" class="nav-link" id="nav-types">Types</a></li>
+            <li><a href="#timeline" class="nav-link" id="nav-timeline">Timeline</a></li>
+            <li><a href="#election-coach" class="nav-link" id="nav-coach">Helpdesk</a></li>
+            <li><a href="#faq" class="nav-link" id="nav-faq">FAQ</a></li>
+          </ul>
+        </nav>
+        
+        <!-- Header Controls -->
+        <div class="header-controls">
+          <div id="header-translation-widget"></div>
+          <!-- Font Size Toggle (WCAG 2.2 — Text Resizing) -->
+          <div class="font-size-controls" role="group" aria-label="Font size controls">
+            <button data-font-size="small" class="font-size-btn" aria-pressed="false" aria-label="Decrease font size" title="Small text">A-</button>
+            <button data-font-size="default" class="font-size-btn" aria-pressed="true" aria-label="Default font size" title="Default text">A</button>
+            <button data-font-size="large" class="font-size-btn" aria-pressed="false" aria-label="Increase font size" title="Large text">A+</button>
+          </div>
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main id="main-content" role="main" tabindex="-1">
+
+      <!-- ========== HERO SECTION ========== -->
+      <section class="hero-section" aria-labelledby="hero-heading" style="max-width: none; border: none;">
+        <div class="hero-content">
+          <span class="hero-badge">🇮🇳 Votera AI — AI-Powered Civic Education</span>
+          <h1 id="hero-heading" class="hero-title">
+            Your Vote. Your Voice.<br/>Your <span class="gradient-text">Democracy.</span>
+          </h1>
+          <p class="hero-description">
+            Navigate every step of the Indian election process — from checking your eligibility to casting your vote — with AI-powered guidance in 8 languages.
+          </p>
+          <a href="#election-journey" class="hero-cta">
+            Begin Your Journey →
+          </a>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="hero-stat-value">800M+</span>
+              <span class="hero-stat-label">Eligible Voters</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">5</span>
+              <span class="hero-stat-label">Election Types</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">7</span>
+              <span class="hero-stat-label">Journey Stages</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-value">8</span>
+              <span class="hero-stat-label">Languages</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3D Canvas container -->
+      <div id="app" class="webgl-container" aria-hidden="true">
+        <!-- Three.js canvas renders here — decorative, mirrored by accessible fallback -->
+      </div>
+
+      <!-- ========== ACCESSIBLE FALLBACK LAYER ========== -->
+      <div
+        id="accessible-fallback"
+        class="sr-only-layer"
+        role="region"
+        aria-label="Election journey accessible interface — full text alternative to the 3D visual experience"
+      >
+        <!-- Dynamically populated by AccessibleFallback.ts -->
+      </div>
+
+      <!-- ========== ELECTION JOURNEY SECTION ========== -->
+      <section id="election-journey" class="animate-in" aria-labelledby="journey-heading">
+        <span class="section-label">Interactive Guide</span>
+        <h2 id="journey-heading">Your Election Journey</h2>
+        <p class="section-description">
+          Navigate through every step of the Indian election process — from checking your eligibility to casting your vote and tracking results.
+        </p>
+        <!-- Stage indicators populated by JS -->
+        <div id="journey-stages" role="tablist" aria-label="Election journey stages"></div>
+        <div id="journey-content" role="tabpanel" aria-live="polite"></div>
+      </section>
+
+      <!-- ========== ELECTION TYPES SECTION ========== -->
+      <section id="election-types" class="animate-in" aria-labelledby="types-heading">
+        <span class="section-label">Democracy at Every Level</span>
+        <h2 id="types-heading">Types of Indian Elections</h2>
+        <p class="section-description">
+          India conducts elections at every level of governance. Learn about each type below.
+        </p>
+        <div id="election-types-grid" role="list" aria-label="All Indian election types"></div>
+      </section>
+
+      <!-- ========== TIMELINE SECTION ========== -->
+      <section id="timeline" class="animate-in" aria-labelledby="timeline-heading">
+        <span class="section-label">Key Dates & Deadlines</span>
+        <h2 id="timeline-heading">Election Timeline</h2>
+        <p class="section-description">
+          Important deadlines and dates for upcoming elections, registration cutoffs, and voting days.
+        </p>
+        <div id="timeline-content" role="list" aria-label="Election timeline events"></div>
+      </section>
+
+      <!-- ========== ELECTION COACH (Gemini AI) ========== -->
+      <section id="election-coach" class="animate-in" aria-labelledby="coach-heading">
+        <span class="section-label">AI-Powered Assistance</span>
+        <h2 id="coach-heading">Official Election Helpdesk</h2>
+        <p class="section-description">
+          Ask questions about Indian elections, get step-by-step guidance, create calendar reminders, or find your nearest election office.
+        </p>
+        <div id="coach-panel" role="region" aria-label="Official Election Helpdesk powered by Google Gemini AI"></div>
+      </section>
+
+      <!-- ========== FAQ SECTION ========== -->
+      <section id="faq" class="animate-in" aria-labelledby="faq-heading">
+        <span class="section-label">Common Questions</span>
+        <h2 id="faq-heading">Frequently Asked Questions</h2>
+        <div id="faq-accordion" role="region" aria-label="Election frequently asked questions"></div>
+      </section>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer role="contentinfo" id="site-footer" class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-text" style="font-size: var(--text-lg);">Votera AI</span>
+          <p>Your trusted AI-powered companion for understanding Indian elections and exercising your democratic rights. <em>Votera</em> — empowering the modern voter.</p>
+        </div>
+        <div class="footer-col">
+          <h2>Navigation</h2>
+          <ul>
+            <li><a href="#election-journey">Election Journey</a></li>
+            <li><a href="#election-types">Election Types</a></li>
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#election-coach">AI Helpdesk</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="https://eci.gov.in" target="_blank" rel="noopener noreferrer">ECI Website ↗</a></li>
+            <li><a href="https://nvsp.in" target="_blank" rel="noopener noreferrer">NVSP Portal ↗</a></li>
+            <li><a href="https://electoralsearch.eci.gov.in/" target="_blank" rel="noopener noreferrer">Electoral Search ↗</a></li>
+            <li><a href="tel:1950">Voter Helpline: 1950</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h2>Powered By</h2>
+          <ul>
+            <li><a href="#">Google Gemini AI</a></li>
+            <li><a href="#">Google Maps</a></li>
+            <li><a href="#">Cloud Translation</a></li>
+            <li><a href="#">Vertex AI</a></li>
+            <li><a href="#">Cloud Firestore</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024–2026 Votera AI. This is an educational tool. For official information, visit <a href="https://eci.gov.in" target="_blank" rel="noopener noreferrer" id="eci-link" style="color: var(--saffron);">eci.gov.in</a></p>
+        <div class="footer-flag" aria-hidden="true"></div>
+      </div>
+    </footer>
+
+    <!-- ========== SCROLL TO TOP ========== -->
+    <button class="scroll-top-btn" id="scroll-top-btn" aria-label="Scroll to top" title="Back to top">↑</button>
+
+    <!-- ========== ANNOUNCER (ARIA live region for async updates) ========== -->
+    <div
+      id="aria-announcer"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <!-- Entry script -->
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

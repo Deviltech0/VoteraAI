@@ -1,0 +1,63 @@
+{
+  "name": "votera-ai",
+  "version": "1.0.0",
+  "description": "Interactive election education assistant for Indian voters — covers Lok Sabha, Rajya Sabha, State Assembly, Panchayat, Municipal, and By-elections.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/ --ext .ts,.tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,html}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,html}\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "validate": "npm run typecheck && npm run lint && npm run test:coverage"
+  },
+  "keywords": [
+    "election",
+    "india",
+    "voter-education",
+    "lok-sabha",
+    "rajya-sabha",
+    "state-assembly",
+    "panchayat",
+    "municipal",
+    "election-commission",
+    "eci",
+    "gemini",
+    "vertex-ai",
+    "google-maps",
+    "google-cloud-translation",
+    "google-cloud-firestore",
+    "google-cloud-natural-language",
+    "google-calendar",
+    "accessibility",
+    "webgl",
+    "civic-tech",
+    "voter-registration"
+  ],
+  "author": "Votera AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
+    "@playwright/test": "^1.59.1",
+    "@types/google.maps": "^3.64.0",
+    "@types/three": "^0.184.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^9.39.4",
+    "jsdom": "^24.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.59.1",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.0"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "three": "^0.167.0",
+    "zod": "^4.4.2"
+  }
+}
