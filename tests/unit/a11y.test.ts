@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+declare var global: any;
 import {
   announce,
   moveFocusTo,
@@ -72,6 +73,15 @@ describe('generateA11yId()', () => {
     expect(id1).toContain('test');
     expect(id1).not.toBe(id2);
   });
+
+  it('uses fallback generator when crypto is unavailable', () => {
+    const originalCrypto = global.crypto;
+    // @ts-ignore
+    delete (global as any).crypto;
+    const id = generateA11yId('fallback');
+    expect(id).toContain('fallback');
+    global.crypto = originalCrypto;
+  });
 });
 
 describe('createScreenReaderText()', () => {
@@ -110,5 +120,106 @@ describe('setActiveNavSection()', () => {
     const link2 = document.querySelector('[data-section="section2"]');
     expect(link1?.getAttribute('aria-current')).toBe('true');
     expect(link2?.getAttribute('aria-current')).not.toBe('true');
+  });
+});
+
+import { trapFocus, onReducedMotionChange } from '../../src/utils/a11y';
+
+describe('trapFocus()', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div id="container">
+        <button id="btn1">1</button>
+        <button id="btn2">2</button>
+      </div>
+    `;
+  });
+
+  it('returns empty cleanup if container not found', () => {
+    const cleanup = trapFocus('missing');
+    expect(typeof cleanup).toBe('function');
+    expect(() => cleanup()).not.toThrow();
+  });
+
+  it('handles tab key wrapping from last to first', () => {
+    trapFocus('container');
+    const btn1 = document.getElementById('btn1')!;
+    const btn2 = document.getElementById('btn2')!;
+    btn2.focus();
+    
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: false });
+    // mock preventDefault
+    let prevented = false;
+    event.preventDefault = () => { prevented = true; };
+    
+    document.getElementById('container')?.dispatchEvent(event);
+    expect(prevented).toBe(true);
+    expect(document.activeElement).toBe(btn1);
+  });
+
+  it('handles shift+tab wrapping from first to last', () => {
+    trapFocus('container');
+    const btn1 = document.getElementById('btn1')!;
+    const btn2 = document.getElementById('btn2')!;
+    btn1.focus();
+    
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true });
+    let prevented = false;
+    event.preventDefault = () => { prevented = true; };
+    
+    document.getElementById('container')?.dispatchEvent(event);
+    expect(prevented).toBe(true);
+    expect(document.activeElement).toBe(btn2);
+  });
+  
+  it('ignores non-Tab keys', () => {
+    trapFocus('container');
+    const btn1 = document.getElementById('btn1')!;
+    btn1.focus();
+    
+    const event = new KeyboardEvent('keydown', { key: 'Enter' });
+    let prevented = false;
+    event.preventDefault = () => { prevented = true; };
+    
+    document.getElementById('container')?.dispatchEvent(event);
+    expect(prevented).toBe(false);
+  });
+});
+
+describe('onReducedMotionChange()', () => {
+  it('returns empty cleanup if matchMedia is missing', () => {
+    const original = window.matchMedia;
+    // @ts-ignore
+    delete window.matchMedia;
+    const cleanup = onReducedMotionChange(() => {});
+    expect(typeof cleanup).toBe('function');
+    expect(() => cleanup()).not.toThrow();
+    window.matchMedia = original;
+  });
+
+  it('adds and removes listener', () => {
+    const listeners: any[] = [];
+    const dummyQuery: any = {
+      addEventListener: (_type: string, fn: any) => listeners.push(fn),
+      removeEventListener: (_type: string, fn: any) => {
+        const idx = listeners.indexOf(fn);
+        if (idx > -1) listeners.splice(idx, 1);
+      }
+    };
+    
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue(dummyQuery);
+    
+    let result = false;
+    const cleanup = onReducedMotionChange((val) => { result = val; });
+    
+    expect(listeners.length).toBe(1);
+    listeners[0]({ matches: true });
+    expect(result).toBe(true);
+    
+    cleanup();
+    expect(listeners.length).toBe(0);
+    
+    window.matchMedia = original;
   });
 });

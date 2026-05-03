@@ -68,7 +68,7 @@ export class ElectionAnalyticsService {
    * @param query - Raw voter query text.
    */
   async trackQuery(query: string): Promise<void> {
-    if (!this.apiKey) return;
+    if (!this.apiKey) {return;}
 
     const sanitised = sanitizeFull(query, 500);
 
@@ -99,7 +99,7 @@ export class ElectionAnalyticsService {
    * @param event - The event to log.
    */
   private dispatchLog(event: AnalyticsEvent): void {
-    const logTask = () => void this.logToFirestore(event);
+    const logTask = (): void => void this.logToFirestore(event);
     
     if (typeof requestIdleCallback === 'function') {
       requestIdleCallback(logTask);
@@ -155,9 +155,9 @@ export class ElectionAnalyticsService {
    * @returns Sentiment label.
    */
   private normaliseSentiment(sentiment: NLSentiment | undefined): 'positive' | 'neutral' | 'negative' {
-    if (!sentiment) return 'neutral';
-    if (sentiment.score > 0.15) return 'positive';
-    if (sentiment.score < -0.15) return 'negative';
+    if (!sentiment) {return 'neutral';}
+    if (sentiment.score > 0.15) {return 'positive';}
+    if (sentiment.score < -0.15) {return 'negative';}
     return 'neutral';
   }
 

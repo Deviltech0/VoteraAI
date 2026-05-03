@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
+declare var global: any;
 import { ElectionAnalyticsService } from '../../src/services/analytics';
 import { ElectionVertexService } from '../../src/services/vertex';
 
@@ -89,6 +90,55 @@ describe('ElectionAnalyticsService', () => {
     vi.spyOn(service as any, 'analyseWithNaturalLanguage').mockRejectedValue(new Error('mock timeout'));
     const sqlQuery = "'; DROP TABLE voters; --";
     await expect(service.trackQuery(sqlQuery)).resolves.toBeUndefined();
+  });
+
+  it('trackQuery dispatches log correctly for positive sentiment', async () => {
+    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key-analytics-123');
+    const service = new ElectionAnalyticsService();
+    // @ts-ignore
+    const nlSpy = vi.spyOn(service as any, 'analyseWithNaturalLanguage').mockResolvedValue({
+      language: 'en',
+      entities: [{ type: 'PERSON' }],
+      documentSentiment: { score: 0.5, magnitude: 0.8 }
+    });
+    // @ts-ignore
+    const logSpy = vi.spyOn(service as any, 'logToFirestore').mockResolvedValue({});
+    
+    // jsdom doesn't have requestIdleCallback
+    // @ts-ignore
+    global.requestIdleCallback = vi.fn().mockImplementation((cb: any) => cb());
+    
+    await service.trackQuery('I love the election process');
+    expect(nlSpy).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith(expect.objectContaining({ sentiment: 'positive' }));
+    
+    // @ts-ignore
+    delete global.requestIdleCallback;
+  });
+
+  it('trackQuery dispatches log correctly for negative sentiment', async () => {
+    vi.stubEnv('VITE_GEMINI_API_KEY', 'test-key-analytics-123');
+    const service = new ElectionAnalyticsService();
+    // @ts-ignore
+    const nlSpy = vi.spyOn(service as any, 'analyseWithNaturalLanguage').mockResolvedValue({
+      documentSentiment: { score: -0.5, magnitude: 0.8 }
+    });
+    // @ts-ignore
+    const logSpy = vi.spyOn(service as any, 'logToFirestore').mockResolvedValue({});
+    
+    const setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation((cb: any) => cb());
+    // remove requestIdleCallback to test setTimeout branch
+    const origIdle = global.requestIdleCallback;
+    // @ts-ignore
+    delete global.requestIdleCallback;
+    
+    await service.trackQuery('I hate the election process');
+    expect(nlSpy).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith(expect.objectContaining({ sentiment: 'negative' }));
+    
+    setTimeoutSpy.mockRestore();
+    // @ts-ignore
+    global.requestIdleCallback = origIdle;
   });
 });
 

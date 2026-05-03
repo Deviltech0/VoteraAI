@@ -191,4 +191,77 @@ describe('ElectionVertexService — Extended Coverage', () => {
       expect(result).not.toBeNull();
     });
   });
+
+  describe('findRelevantFaq — API flow', () => {
+    let configuredService: ElectionVertexService;
+
+    beforeEach(() => {
+      vi.stubEnv('VITE_GEMINI_API_KEY', 'test-vertex-key');
+      configuredService = new ElectionVertexService();
+    });
+
+    it('uses embeddings and cosine similarity to find relevant FAQ', async () => {
+      // Mock the SafeApiClient post method
+      // @ts-ignore
+      const postSpy = vi.spyOn(configuredService.client, 'post').mockResolvedValue({
+        ok: true,
+        data: {
+          predictions: [{ embeddings: { values: [0.1, 0.2] } }]
+        }
+      });
+
+      const result = await configuredService.findRelevantFaq('What is the minimum voting age?');
+      expect(postSpy).toHaveBeenCalled();
+      expect(result).not.toBeNull();
+    });
+
+    it('falls back to keyword match if embedding API fails', async () => {
+      // @ts-ignore
+      const postSpy = vi.spyOn(configuredService.client, 'post').mockResolvedValue({
+        ok: false
+      });
+
+      const result = await configuredService.findRelevantFaq('Am I eligible to vote?');
+      expect(postSpy).toHaveBeenCalled();
+      expect(result).not.toBeNull();
+      expect(result?.question).toContain('eligible');
+    });
+
+    it('cosineSimilarity handles zero magnitude vectors safely', async () => {
+      // Create a test that deliberately returns a zero vector for query
+      // @ts-ignore
+      vi.spyOn(configuredService.client, 'post').mockImplementation(async (endpoint) => {
+        if (endpoint.includes('predict')) {
+          return {
+            ok: true,
+            data: { predictions: [{ embeddings: { values: [0, 0] } }] } // zero vector
+          };
+        }
+        return { ok: false };
+      });
+      
+      const result = await configuredService.findRelevantFaq('xyzzy completely irrelevant query zork');
+      expect(result).toBeNull();
+    });
+
+    it('cosineSimilarity handles unequal length vectors safely', async () => {
+      // @ts-ignore
+      vi.spyOn(configuredService, 'embedText').mockImplementationOnce(async () => [0.1]);
+      // The corpus might return vectors of length 2
+      // @ts-ignore
+      vi.spyOn(configuredService, 'getCorpusEmbeddings').mockImplementationOnce(async () => [[0.1, 0.2]]);
+      
+      const result = await configuredService.findRelevantFaq('xyzzy completely irrelevant query zork');
+      expect(result).toBeNull();
+    });
+
+    it('falls back to keyword match when embedText throws an exception', async () => {
+      // @ts-ignore
+      vi.spyOn(configuredService, 'embedText').mockRejectedValueOnce(new Error('Network failure'));
+      
+      const result = await configuredService.findRelevantFaq('Am I eligible to vote?');
+      expect(result).not.toBeNull();
+      expect(result?.question).toContain('eligible');
+    });
+  });
 });

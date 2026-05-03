@@ -104,19 +104,18 @@ This ensures:
 
 ## Content Security Policy (CSP) Design Decisions
 
-### Why `'unsafe-inline'` in `script-src`?
+### Strict CSP Compliance
 
-The application uses `'unsafe-inline'` in `script-src` for two specific reasons:
+The application enforces a strict Content Security Policy (CSP) without any `'unsafe-inline'` or `'unsafe-eval'` directives. This ensures maximum protection against Cross-Site Scripting (XSS) and injection attacks.
 
-1. **Vite's development HMR** injects inline scripts during development
-2. **Google Maps JavaScript API** requires inline script execution for the `maps.googleapis.com` loader
-
-**Mitigations applied:**
-- All user-generated content is sanitised through `sanitizeFull()` before DOM insertion
-- No `innerHTML` is used with unsanitised data anywhere in the codebase
-- The `base-uri 'self'` directive prevents `<base>` tag injection
-- The `object-src 'none'` directive blocks plugin-based attacks
-- `form-action 'self'` restricts form submission targets
+**Key implementations:**
+- All inline styles have been removed and replaced with utility CSS classes.
+- All inline scripts are strictly avoided.
+- All user-generated content is sanitised through `sanitizeFull()` before DOM insertion.
+- No `innerHTML` is used with unsanitised data anywhere in the codebase.
+- The `base-uri 'self'` directive prevents `<base>` tag injection.
+- The `object-src 'none'` directive blocks plugin-based attacks.
+- `form-action 'self'` restricts form submission targets.
 
 ### Additional CSP Directives
 

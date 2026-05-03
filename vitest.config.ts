@@ -23,6 +23,7 @@ export default defineConfig({
       exclude: [
         'src/main.ts',
         'src/types/**',
+        'src/**/*-types.ts',
         'src/scene/**',
         'src/ui/**', // Tested via E2E Playwright tests
       ],

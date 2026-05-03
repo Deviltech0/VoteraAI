@@ -14,12 +14,18 @@ import { ElectionVertexService } from '../../src/services/vertex';
 
 describe('GeminiToolHandlers — processToolCall()', () => {
   let handlers: GeminiToolHandlers;
+  let mockTranslationService: ElectionTranslationService;
+  let mockMapsService: ElectionMapsService;
+  let mockVertexService: ElectionVertexService;
 
   beforeEach(() => {
+    mockTranslationService = new ElectionTranslationService();
+    mockMapsService = new ElectionMapsService();
+    mockVertexService = new ElectionVertexService();
     handlers = new GeminiToolHandlers(
-      new ElectionTranslationService(),
-      new ElectionMapsService(),
-      new ElectionVertexService(),
+      mockTranslationService,
+      mockMapsService,
+      mockVertexService,
     );
   });
 
@@ -40,6 +46,15 @@ describe('GeminiToolHandlers — processToolCall()', () => {
     });
     expect(result.status).toBe('success');
     expect(result.result).toBeTruthy();
+  });
+
+  it('handles check_voter_eligibility with missing arguments (branch coverage)', async () => {
+    const result = await handlers.processToolCall({
+      name: 'check_voter_eligibility',
+      args: {},
+    });
+    expect(result.status).toBe('success');
+    expect(String(result.result)).toContain('18 year');
   });
 
   it('handles check_voter_eligibility with underage', async () => {
@@ -84,6 +99,65 @@ describe('GeminiToolHandlers — processToolCall()', () => {
       args: { search_query: 'What is NOTA?' },
     });
     expect(result.status).toBe('success');
+  });
+
+  it('lookup_election_faq returns Vertex AI response', async () => {
+    vi.spyOn(mockVertexService, 'findRelevantFaq').mockResolvedValue({
+      question: 'Q',
+      answer: 'A',
+      score: 0.9
+    });
+
+    const call = {
+      name: 'lookup_election_faq',
+      args: { search_query: 'test faq' },
+    };
+    const result = await handlers.processToolCall(call);
+
+    expect(result.status).toBe('success');
+    expect(result.result).toContain('Q: Q');
+  });
+
+  it('lookup_election_faq handles null response from Vertex AI', async () => {
+    vi.spyOn(mockVertexService, 'findRelevantFaq').mockResolvedValue(null);
+
+    const call = {
+      name: 'lookup_election_faq',
+      args: { search_query: 'nothing matches this' },
+    };
+    const result = await handlers.processToolCall(call);
+
+    expect(result.status).toBe('success');
+    expect(result.result).toContain('No matching FAQ found');
+  });
+
+  it('find_polling_location falls back to Maps link when no data returned', async () => {
+    vi.spyOn(mockMapsService, 'searchPollingLocations').mockResolvedValue({
+      ok: false, data: null, error: 'err', status: 500
+    });
+    vi.spyOn(mockMapsService, 'generateMapsLink').mockReturnValue('https://maps.test');
+
+    const call = {
+      name: 'find_polling_location',
+      args: { query: 'nowhere' },
+    };
+    const result = await handlers.processToolCall(call);
+
+    expect(result.status).toBe('success');
+    expect(result.result).toContain('Search on Google Maps:');
+  });
+
+  it('processToolCall handles handler exceptions gracefully', async () => {
+    vi.spyOn(mockTranslationService, 'translateText').mockRejectedValue(new Error('crash'));
+
+    const call = {
+      name: 'translate_text',
+      args: { text: 'crash me' },
+    };
+    const result = await handlers.processToolCall(call);
+
+    expect(result.status).toBe('error');
+    expect(result.result).toContain('Service temporarily unavailable');
   });
 
   it('handles translate_text gracefully when unconfigured', async () => {

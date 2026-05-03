@@ -147,7 +147,7 @@ export class ElectionCoachPanel {
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       const now = Date.now();
-      if (now - this.lastSubmitTime < SUBMIT_DEBOUNCE_MS || this.isProcessing) return;
+      if (now - this.lastSubmitTime < SUBMIT_DEBOUNCE_MS || this.isProcessing) {return;}
 
       const query = input.value.trim();
       if (query) {
@@ -161,7 +161,7 @@ export class ElectionCoachPanel {
       const btn = (e.target as HTMLElement).closest('.coach-suggestion');
       if (btn) {
         const now = Date.now();
-        if (now - this.lastSubmitTime < SUBMIT_DEBOUNCE_MS || this.isProcessing) return;
+        if (now - this.lastSubmitTime < SUBMIT_DEBOUNCE_MS || this.isProcessing) {return;}
 
         const query = btn.getAttribute('data-query') || '';
         if (query) {
@@ -217,7 +217,7 @@ export class ElectionCoachPanel {
    */
   private appendMessage(role: 'user' | 'assistant', content: string): string {
     const messages = document.getElementById('coach-messages');
-    if (!messages) return '';
+    if (!messages) {return '';}
 
     const id = generateA11yId('msg');
     const label = role === 'user' ? COACH_CONTENT.youLabel : COACH_CONTENT.officialLabel;
@@ -236,6 +236,6 @@ export class ElectionCoachPanel {
    */
   private replaceMessage(id: string, content: string): void {
     const p = document.getElementById(id)?.querySelector('.message-content');
-    if (p) p.textContent = content;
+    if (p) {p.textContent = content;}
   }
 }
