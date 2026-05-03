@@ -52,7 +52,7 @@ interface VertexConfig {
 
 /** Vertex AI text-embedding model for election FAQ matching. */
 const VERTEX_CONFIG: VertexConfig = {
-  projectId: 'votera-ai',
+  projectId: String(import.meta.env['VITE_GOOGLE_CLOUD_PROJECT'] || 'votera-ai'),
   location: 'us-central1',
   model: 'text-embedding-004',
 };

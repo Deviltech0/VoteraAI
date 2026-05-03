@@ -13,42 +13,41 @@
 
 India's democratic process involves multiple election types, complex eligibility rules, and diverse regional languages. Votera AI bridges this knowledge gap by providing a single, inclusive platform that educates voters at every step — from checking eligibility to understanding post-election engagement.
 
----
+### Architecture Overview
 
-## 🧠 Approach and Logic
-
-### Design Philosophy: "DOM-First" Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│  Accessible DOM Layer (Source of Truth)      │
-│  ├── Semantic HTML + ARIA roles             │
-│  ├── Keyboard navigation                    │
-│  └── Screen reader announcements            │
-├─────────────────────────────────────────────┤
-│  3D WebGL Layer (Progressive Enhancement)   │
-│  ├── Procedural geometry (zero assets)      │
-│  ├── prefers-reduced-motion aware           │
-│  └── Degrades gracefully if unavailable     │
-├─────────────────────────────────────────────┤
-│  Google Cloud Service Layer                 │
-│  ├── Gemini AI → Conversational coaching    │
-│  ├── Vertex AI → Semantic FAQ matching      │
-│  ├── Cloud Translation → 8 languages       │
-│  ├── Google Maps → Polling booth locator    │
-│  ├── Google Calendar → Election reminders   │
-│  ├── Cloud NL API → Query intent analysis   │
-│  └── Firestore → Anonymised analytics       │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+    A[Voter Interface] --> B{Interaction Layer}
+    B --> C[3D WebGL Journey]
+    B --> D[Accessible DOM Fallback]
+    D --> E[Gemini AI Coach]
+    
+    E --> F{Function Calling}
+    F --> G[Cloud Translation]
+    F --> H[Google Maps]
+    F --> I[Vertex AI FAQ]
+    F --> J[Calendar Reminders]
+    
+    E --> K[Cloud NL Analytics]
+    K --> L[Firestore Event Store]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#6bf,stroke:#333,stroke-width:2px
+    style G fill:#9f9,stroke:#333,stroke-width:2px
+    style H fill:#9f9,stroke:#333,stroke-width:2px
+    style I fill:#9f9,stroke:#333,stroke-width:2px
 ```
 
-**Key Decisions:**
-1. **The accessible HTML is the source of truth** — not the 3D scene. This ensures the app is fully functional for screen readers, keyboard users, and low-powered devices.
-2. **Every Google Cloud service has a graceful degradation path** — static fallbacks ensure the app works offline or without API keys.
+### Design Philosophy: "A11y-First" Architecture
+
+1. **The accessible HTML is the absolute source of truth** — not the 3D scene. This ensures the app is fully functional for screen readers, keyboard users, and low-powered devices.
+2. **Every Google Cloud service has a robust fallback path** — semantic keyword matching ensures the app works even if APIs are restricted or unavailable.
 3. **Gemini function calling orchestrates all services** — the AI coach dispatches queries to Translation, Maps, Vertex AI FAQ, eligibility validation, and timeline services in real-time.
-4. **Zero external assets** — the 3D scene uses procedural geometry (dodecahedrons, particles, canvas text sprites) resulting in an ultra-lightweight payload.
+4. **Zero external assets** — the 3D scene uses procedural geometry (dodecahedrons, particles, canvas text sprites) resulting in an ultra-lightweight payload (<200kb total).
+5. **Privacy by Design** — No PII is collected. All analytics are anonymised and focus purely on voter education gaps.
 
 ---
+
 
 ## ⚙️ How the Solution Works
 

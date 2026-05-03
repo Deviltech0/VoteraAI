@@ -451,7 +451,7 @@ describe('Edge-Case Tests', () => {
       vi.spyOn(service as any, 'processToolCall').mockReturnValue({
         toolName: 'find_polling_booth',
         args: {},
-        result: null,
+        result: 'Service unavailable',
         status: 'error',
       });
       // @ts-ignore

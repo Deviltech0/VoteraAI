@@ -123,6 +123,10 @@ export class TranslationWidget {
     }
 
     announce(`Translating election content to ${targetLang}…`);
+    const main = document.querySelector('main');
+    if (main) {
+      main.setAttribute('aria-busy', 'true');
+    }
 
     const nodes = this.collectTranslatableNodes();
 
@@ -155,6 +159,9 @@ export class TranslationWidget {
     }
 
     this.currentLang = targetLang;
+    if (main) {
+      main.removeAttribute('aria-busy');
+    }
     announce('Translation complete.');
   }
 

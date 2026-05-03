@@ -377,7 +377,7 @@ export class ElectionCoachService {
       const toolSummary = toolResults
         .map(
           (r) =>
-            `[${r.toolName}]: ${r.status === 'success' ? String(r.result) : 'Service unavailable'}`,
+            `[${r.toolName}]: ${String(r.result)}`,
         )
         .join('\n');
       responseText += `\n\n${toolSummary}`;
