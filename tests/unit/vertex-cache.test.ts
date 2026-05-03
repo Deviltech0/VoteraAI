@@ -16,7 +16,7 @@ describe('Vertex Cache Coverage', () => {
     
     // Mock the embedText private method
     const embedTextMock = vi.spyOn(service as any, 'embedText').mockResolvedValue([0.1, 0.2]);
-    const cosineMock = vi.spyOn(service as any, 'cosineSimilarity').mockReturnValue(0.4);
+    vi.spyOn(service as any, 'cosineSimilarity').mockReturnValue(0.4);
     
     // First call: computes embeddings
     const promise1 = (service as any).getCorpusEmbeddings();

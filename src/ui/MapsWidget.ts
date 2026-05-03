@@ -98,7 +98,7 @@ export class MapsWidget {
       <div id="maps-embed-container" style="margin-top: var(--space-3); border-radius: var(--radius-md); overflow: hidden; display: none;">
         <!-- Maps embed loads here -->
       </div>
-    `;
+    `);
 
     coach.appendChild(widget);
     this.setupEventListeners(widget);

@@ -26,8 +26,8 @@ FROM nginx:1.27-alpine AS production
 
 # Copy compiled assets
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Cloud Run uses PORT env var
 ENV PORT=8080
