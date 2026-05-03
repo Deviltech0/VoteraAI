@@ -5,109 +5,41 @@
  * analysis and uses the Google Cloud Natural Language API to classify
  * query intent and extract election-related entities.
  *
- * Data stored is never personally identifiable — only query category,
- * intent, and timestamp are retained.
- *
  * @module services/analytics
  */
 
 import { SafeApiClient } from './api-client';
 import { sanitizeFull } from '../utils/sanitize';
-
-/* ---- Types ---- */
-
-/** Categories of voter intent detected by Natural Language API. */
-export type QueryIntent =
-  | 'eligibility'
-  | 'registration'
-  | 'polling_location'
-  | 'election_type'
-  | 'evm_vvpat'
-  | 'candidate_info'
-  | 'timeline'
-  | 'general';
-
-/** Anonymised analytics event stored in Firestore. */
-export interface AnalyticsEvent {
-  readonly sessionId: string;
-  readonly queryCategory: QueryIntent;
-  readonly languageCode: string;
-  readonly timestamp: string;
-  readonly entities: readonly string[];
-  readonly sentiment: 'positive' | 'neutral' | 'negative';
-}
-
-/** Natural Language API entity result. */
-interface NLEntity {
-  name: string;
-  type: string;
-  salience: number;
-}
-
-/** Natural Language API sentiment result. */
-interface NLSentiment {
-  score: number;
-  magnitude: number;
-}
-
-/** Natural Language API response structure. */
-interface NLApiResponse {
-  entities?: NLEntity[];
-  documentSentiment?: NLSentiment;
-  language?: string;
-}
-
-/** Firestore document write response. */
-interface FirestoreWriteResponse {
-  name?: string;
-  fields?: Record<string, unknown>;
-}
-
-/* ---- Constants ---- */
-
-/** Firestore REST API base for votera-ai project. */
-const FIRESTORE_BASE =
-  'https://firestore.googleapis.com/v1/projects/votera-ai/databases/(default)/documents';
-
-/** Natural Language API endpoint. */
-const NL_API_BASE = 'https://language.googleapis.com/v1';
-
-/* ---- Intent Classification Map ---- */
-
-/**
- * Keyword-to-intent map for local pre-classification.
- * Replaces a complex if-else chain to stay within complexity limits.
- */
-const INTENT_MAP: readonly {
-  readonly keywords: readonly string[];
-  readonly intent: QueryIntent;
-}[] = [
-  { keywords: ['eligib', 'can i vote', 'age'], intent: 'eligibility' },
-  { keywords: ['register', 'enrol', 'form 6'], intent: 'registration' },
-  { keywords: ['booth', 'polling', 'where'], intent: 'polling_location' },
-  { keywords: ['evm', 'vvpat', 'machine'], intent: 'evm_vvpat' },
-  { keywords: ['lok sabha', 'rajya', 'panchayat', 'municipal'], intent: 'election_type' },
-  { keywords: ['candidate', 'party', 'mp'], intent: 'candidate_info' },
-  { keywords: ['date', 'schedule', 'deadline'], intent: 'timeline' },
-] as const;
-
-/* ---- Service ---- */
+import { generateA11yId } from '../utils/a11y';
+import { classifyVoterIntent } from './classification';
+import type { 
+  AnalyticsEvent, 
+  NLApiResponse, 
+  NLSentiment, 
+  FirestoreWriteResponse 
+} from './analytics-types';
 
 /**
  * Election Analytics Service.
  *
  * Integrates Google Cloud Natural Language API for query intent classification
- * and Google Cloud Firestore for anonymised event logging. Both services
- * degrade gracefully when API keys are absent.
+ * and Google Cloud Firestore for anonymised event logging.
  */
 export class ElectionAnalyticsService {
+  /** API client for Natural Language API. */
   private readonly nlClient: SafeApiClient;
+  
+  /** API client for Firestore REST API. */
   private readonly firestoreClient: SafeApiClient;
+  
+  /** Unified Google Cloud API Key. */
   private readonly apiKey: string;
+  
+  /** Unique session identifier for anonymised tracking. */
   private readonly sessionId: string;
 
   /**
-   * Initialize the Analytics Service.
+   * Initialize the Analytics Service and generate a session ID.
    */
   constructor() {
     this.apiKey = String(
@@ -117,40 +49,32 @@ export class ElectionAnalyticsService {
         '',
     );
 
-    this.sessionId = this.generateSessionId();
+    this.sessionId = generateA11yId('session');
 
     this.nlClient = new SafeApiClient({
-      baseUrl: NL_API_BASE,
+      baseUrl: 'https://language.googleapis.com/v1',
       timeoutMs: 10000,
-      retries: 0,
     });
 
     this.firestoreClient = new SafeApiClient({
-      baseUrl: FIRESTORE_BASE,
+      baseUrl: 'https://firestore.googleapis.com/v1/projects/votera-ai/databases/(default)/documents',
       timeoutMs: 8000,
-      retries: 0,
     });
   }
 
   /**
    * Track a voter query using Natural Language API + Firestore.
    *
-   * Classifies the query intent and logs an anonymised event.
-   * Fails silently — never blocks the user experience.
-   *
    * @param query - Raw voter query text.
-   * @returns Void — analytics failures are swallowed.
    */
   async trackQuery(query: string): Promise<void> {
-    if (!this.apiKey) {
-      return;
-    }
+    if (!this.apiKey) return;
 
     const sanitised = sanitizeFull(query, 500);
 
     try {
       const [intent, nlResult] = await Promise.all([
-        Promise.resolve(this.classifyIntent(sanitised)),
+        Promise.resolve(classifyVoterIntent(sanitised)),
         this.analyseWithNaturalLanguage(sanitised),
       ]);
 
@@ -163,62 +87,51 @@ export class ElectionAnalyticsService {
         sentiment: this.normaliseSentiment(nlResult.documentSentiment),
       };
 
-      // Log to Firestore using requestIdleCallback to avoid blocking the main thread
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(() => {
-          void this.logToFirestore(event);
-        });
-      } else {
-        // Fallback for environments without requestIdleCallback
-        setTimeout(() => {
-          void this.logToFirestore(event);
-        }, 0);
-      }
+      this.dispatchLog(event);
     } catch {
-      // Fail silently — analytics must never interrupt the voter experience
+      // Fail silently to never block the voter experience
+    }
+  }
+
+  /**
+   * Dispatch the log event asynchronously using idle time if possible.
+   *
+   * @param event - The event to log.
+   */
+  private dispatchLog(event: AnalyticsEvent): void {
+    const logTask = () => void this.logToFirestore(event);
+    
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(logTask);
+    } else {
+      setTimeout(logTask, 0);
     }
   }
 
   /**
    * Analyse text using Google Cloud Natural Language API.
    *
-   * Extracts entities and detects sentiment for query understanding.
-   *
    * @param text - Text to analyse.
-   * @returns Natural Language API result with entities and sentiment.
+   * @returns Natural Language API result.
    */
   private async analyseWithNaturalLanguage(text: string): Promise<NLApiResponse> {
     const endpoint = `/documents:analyzeEntities?key=${this.apiKey}`;
-
     const body = {
-      document: {
-        type: 'PLAIN_TEXT',
-        content: text,
-        language: 'en',
-      },
+      document: { type: 'PLAIN_TEXT', content: text, language: 'en' },
       encodingType: 'UTF8',
     };
 
     const response = await this.nlClient.post<NLApiResponse>(endpoint, body);
-
-    if (response.ok && response.data) {
-      return response.data;
-    }
-
-    return {};
+    return response.ok && response.data ? response.data : {};
   }
 
   /**
    * Write an analytics event to Google Cloud Firestore.
    *
-   * Uses the Firestore REST API to avoid SDK overhead.
-   *
    * @param event - Anonymised analytics event.
    */
   private async logToFirestore(event: AnalyticsEvent): Promise<void> {
-    const collection = 'voter_queries';
-    const endpoint = `/${collection}?key=${this.apiKey}`;
-
+    const endpoint = `/voter_queries?key=${this.apiKey}`;
     const firestoreDoc = {
       fields: {
         sessionId: { stringValue: event.sessionId },
@@ -227,9 +140,7 @@ export class ElectionAnalyticsService {
         timestamp: { timestampValue: event.timestamp },
         sentiment: { stringValue: event.sentiment },
         entityTypes: {
-          arrayValue: {
-            values: event.entities.map((e) => ({ stringValue: e })),
-          },
+          arrayValue: { values: event.entities.map((e) => ({ stringValue: e })) },
         },
       },
     };
@@ -238,59 +149,16 @@ export class ElectionAnalyticsService {
   }
 
   /**
-   * Classify a voter query into an intent category using keyword matching.
+   * Normalise a Natural Language API sentiment score.
    *
-   * Uses a data-driven lookup table to avoid high cyclomatic complexity.
-   * Acts as a fast local pre-classifier before the NL API call.
-   *
-   * @param query - Lowercase sanitised query.
-   * @returns Matched intent category.
+   * @param sentiment - Raw sentiment object.
+   * @returns Sentiment label.
    */
-  private classifyIntent(query: string): QueryIntent {
-    const lower = query.toLowerCase();
-
-    const match = INTENT_MAP.find((entry) => entry.keywords.some((kw) => lower.includes(kw)));
-
-    return match?.intent ?? 'general';
-  }
-
-  /**
-   * Normalise a Natural Language API sentiment score to a readable label.
-   *
-   * @param sentiment - Raw NL API sentiment object.
-   * @returns Human-readable sentiment label.
-   */
-  private normaliseSentiment(
-    sentiment: NLSentiment | undefined,
-  ): 'positive' | 'neutral' | 'negative' {
-    if (!sentiment) {
-      return 'neutral';
-    }
-
-    if (sentiment.score > 0.15) {
-      return 'positive';
-    }
-    if (sentiment.score < -0.15) {
-      return 'negative';
-    }
-
+  private normaliseSentiment(sentiment: NLSentiment | undefined): 'positive' | 'neutral' | 'negative' {
+    if (!sentiment) return 'neutral';
+    if (sentiment.score > 0.15) return 'positive';
+    if (sentiment.score < -0.15) return 'negative';
     return 'neutral';
-  }
-
-  /**
-   * Generate a unique, anonymous session identifier.
-   *
-   * Uses crypto.randomUUID() for standards-compliant uniqueness.
-   * Falls back to a timestamp-based ID if the API is unavailable.
-   *
-   * @returns Anonymous session ID string.
-   */
-  private generateSessionId(): string {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID();
-    }
-
-    return `session-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   }
 
   /**

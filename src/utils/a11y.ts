@@ -138,12 +138,21 @@ export function onReducedMotionChange(callback: (reduced: boolean) => void): () 
 /**
  * Generate a unique ID for accessible elements.
  *
+ * Uses crypto.randomUUID() for high entropy, falling back to a timestamp
+ * based generator for legacy environments.
+ *
  * @param prefix - ID prefix describing the element's purpose.
  * @returns A unique string ID.
  */
 export function generateA11yId(prefix: string): string {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `${prefix}-${random}`;
+  try {
+    const uuid = crypto.randomUUID().slice(0, 8);
+    return `${prefix}-${uuid}`;
+  } catch {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).slice(2, 6);
+    return `${prefix}-${timestamp}-${random}`;
+  }
 }
 
 /**
