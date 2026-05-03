@@ -1,10 +1,10 @@
 /**
- * Extended coverage tests for Google Maps, Cloud Translation, and API Client.
+ * Deep Tests — Google Maps, Cloud Translation, and API Client.
  *
- * Targets previously uncovered branches in maps.ts (38%), translation.ts (55%),
- * and api-client.ts (70%) to push aggregate coverage above the 80% threshold.
+ * Verifies geolocation workflows, language validation, embed URL generation,
+ * retry logic, and error recovery across all external service integrations.
  *
- * @module tests/unit/maps-translation-coverage
+ * @module tests/unit/maps-translation-deep
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -342,7 +342,7 @@ describe('ElectionTranslationService — Extended Coverage', () => {
 });
 
 /* ================================================================
- *  SafeApiClient + createGoogleApiClient Tests
+ *  SafeApiClient Tests
  * ================================================================ */
 
 describe('SafeApiClient — Extended Coverage', () => {
@@ -436,10 +436,3 @@ describe('SafeApiClient — Extended Coverage', () => {
   });
 });
 
-describe('createGoogleApiClient', () => {
-  it('creates a pre-configured Google API client', async () => {
-    const { createGoogleApiClient } = await import('../../src/services/api-client');
-    const client = createGoogleApiClient();
-    expect(client).toBeDefined();
-  });
-});

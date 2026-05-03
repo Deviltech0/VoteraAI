@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "description": "Interactive election education assistant for Indian voters — covers Lok Sabha, Rajya Sabha, State Assembly, Panchayat, Municipal, and By-elections.",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "homepage": "https://github.com/Deviltech0/VoteraAI#readme",
+  "bugs": {
+    "url": "https://github.com/Deviltech0/VoteraAI/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

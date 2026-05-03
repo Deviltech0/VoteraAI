@@ -162,15 +162,3 @@ export class SafeApiClient {
     };
   }
 }
-
-/**
- * Pre-configured API client for Google APIs.
- * Uses environment variables for configuration.
- */
-export function createGoogleApiClient(): SafeApiClient {
-  return new SafeApiClient({
-    baseUrl: 'https://generativelanguage.googleapis.com',
-    timeoutMs: 30000,
-    retries: 2,
-  });
-}

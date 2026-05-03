@@ -14,6 +14,10 @@
  * milliseconds have elapsed since the last call. If invoked again
  * before the delay expires, the timer resets.
  *
+ * @example
+ * const debouncedSearch = debounce((q) => api.search(q), 500);
+ * input.addEventListener('input', (e) => debouncedSearch(e.target.value));
+ *
  * @param fn - The function to debounce.
  * @param delayMs - Delay in milliseconds (default: 500ms).
  * @returns A debounced wrapper function.

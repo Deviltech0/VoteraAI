@@ -45,6 +45,7 @@ export class AccessibleFallback {
    * Render the core structure of the fallback layer.
    */
   private render(): void {
+    // SAFE: Static HTML template, no user data interpolated.
     this.container.innerHTML = `
       <h2 class="sr-only">Election Journey — Accessible Text Interface</h2>
       <p class="sr-only">
@@ -90,6 +91,7 @@ export class AccessibleFallback {
     }
 
     // Tab buttons
+    // SAFE: ELECTION_STAGES is static application data, no user input.
     panelsContainer.innerHTML = ELECTION_STAGES.map(
       (stage, i) => `
       <button
@@ -137,6 +139,7 @@ export class AccessibleFallback {
 
     const pos = getStagePosition(stageId);
 
+    // SAFE: Static HTML template, no user data interpolated.
     content.innerHTML = `
       <div
         role="tabpanel"
@@ -185,6 +188,7 @@ export class AccessibleFallback {
       return;
     }
 
+    // SAFE: ELECTION_TYPES is static application data, no user input.
     grid.innerHTML = ELECTION_TYPES.map(
       (type) => `
       <div class="card" role="listitem" style="margin-bottom: var(--space-4);">
@@ -225,6 +229,7 @@ export class AccessibleFallback {
 
     const events = getAllTimelineEvents();
 
+    // SAFE: Events string is pre-sanitised timeline HTML.
     timeline.innerHTML = events
       .map(
         (event) => `
@@ -252,6 +257,7 @@ export class AccessibleFallback {
       return;
     }
 
+    // SAFE: ELECTION_FAQ is static application data, no user input.
     faqContainer.innerHTML = ELECTION_FAQ.map(
       (faq) => `
       <details class="card" style="margin-bottom: var(--space-3);">

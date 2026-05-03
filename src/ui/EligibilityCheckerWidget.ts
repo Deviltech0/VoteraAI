@@ -29,6 +29,7 @@ export class EligibilityCheckerWidget {
   }
 
   private render(): void {
+    // SAFE: Static HTML template, no user data interpolated.
     this.container.innerHTML = `
       <div class="card" style="margin-bottom: var(--space-6); border-left: 3px solid var(--green-india);">
         <h2 style="color: var(--navy); margin-bottom: var(--space-2); font-size: var(--text-xl);">

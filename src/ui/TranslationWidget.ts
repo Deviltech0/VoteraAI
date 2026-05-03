@@ -13,7 +13,7 @@
 
 import { ElectionTranslationService, SUPPORTED_LANGUAGES } from '../services/translation';
 import { announce } from '../utils/a11y';
-import { StatusFeedback } from '../utils/StatusFeedback';
+import { StatusFeedback } from '../utils/status-feedback';
 
 /** Maximum strings per batch request to the Translation API. */
 const BATCH_SIZE = 50;

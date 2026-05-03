@@ -121,6 +121,10 @@ export function removeControlChars(input: string): string {
  * @param input - Raw user input.
  * @param maxLength - Maximum characters allowed.
  * @returns Fully sanitised string.
+ *
+ * @example
+ * const safe = sanitizeFull('<script>alert("hi")</script>');
+ * // Returns "&lt;script&gt;alert(&quot;hi&quot;)&lt;&#x2F;script&gt;"
  */
 export function sanitizeFull(input: string, maxLength: number = 2000): string {
   if (typeof input !== 'string') {

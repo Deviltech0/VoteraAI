@@ -18,6 +18,11 @@ const DEFAULT_CONFIG: CacheConfig = {
 /**
  * In-memory cache with TTL and max-size eviction.
  *
+ * @example
+ * const cache = new ElectionCache<string>();
+ * cache.set('query', 'result', 60000); // 60s TTL
+ * const data = cache.get('query');
+ *
  * Consumers interact with `get`, `set`, `has`, `delete`, and `clear`.
  * The implementation can later be replaced with Redis/Memcached
  * by implementing the same interface.

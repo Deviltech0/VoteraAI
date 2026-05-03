@@ -23,7 +23,7 @@ import { CalendarWidget } from './ui/CalendarWidget';
 import { EligibilityCheckerWidget } from './ui/EligibilityCheckerWidget';
 import { ElectionAnalyticsService } from './services/analytics';
 import { ElectionVertexService } from './services/vertex';
-import { StatusFeedback } from './utils/StatusFeedback';
+import { StatusFeedback } from './utils/status-feedback';
 import { store } from './state/store';
 import { announce, onReducedMotionChange, prefersReducedMotion } from './utils/a11y';
 import { Logger } from './utils/logger';

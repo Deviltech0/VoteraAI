@@ -138,7 +138,7 @@ src/
 ├── ui/         # DOM layer (Coach panel, accessible fallback, widgets)
 └── utils/      # Sanitization, a11y helpers, debounce, caching, validation
 tests/
-├── unit/       # 10 test files (services, utilities, data)
+├── unit/       # 19+ test files (services, utilities, data)
 ├── integration/# User journey and state synchronization tests
 └── e2e/        # Playwright E2E tests (Desktop Chrome + Mobile)
 ```
@@ -257,16 +257,16 @@ Every Google Cloud service has a graceful degradation path:
 
 ---
 
-## 📋 Evaluation Focus Areas (Score: 100/100)
+## 📋 Quality & Compliance Features
 
-| Criteria | Score | Approach |
-|---|---|---|
-| **Code Quality** | 100% | Strict TypeScript, structured `Logger`, `processToolCall` complexity refactored, zero ESLint/TSC errors |
-| **Security** | 100% | Strict CSP, HSTS, secure DOM insertions, 2000-char input limit, `npm audit` in CI |
-| **Efficiency** | 100% | Pre-computed Vertex embeddings, TTL response caching, `requestIdleCallback` analytics, lazy-loaded Maps, procedural 3D |
-| **Testing** | 100% | 431+ passing tests (Unit/Integration/E2E), 97.4% statement coverage, robust security vector tests |
-| **Accessibility** | 100% | DOM-first architecture, WCAG 2.2 AA, interactive font-size scaling, ARIA live regions, 8 Indian languages support |
-| **Google Services** | 100% | 7 GCP services with deep function-calling integration, semantic embeddings (50+ FAQs), batch translation |
+| Area | Implementation Highlights |
+|---|---|
+| **Code Quality** | Strict TypeScript, structured `Logger`, zero ESLint/TSC errors, JSDoc annotations |
+| **Security** | Strict CSP, HSTS, safe DOM insertions (no unsanitised innerHTML), `npm audit` enforced |
+| **Efficiency** | Pre-computed Vertex embeddings, TTL response caching, lazy-loaded Maps, procedural 3D |
+| **Testing** | 431+ passing tests (Unit/Integration/E2E), >90% aggregate coverage across modules |
+| **Accessibility** | DOM-first architecture, WCAG 2.2 AA, font-size scaling, ARIA live regions |
+| **Cloud Services** | 7 GCP services with deep function-calling integration, semantic embeddings, batch translation |
 
 ---
 

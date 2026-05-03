@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { StatusFeedback } from '../../src/utils/StatusFeedback';
+import { StatusFeedback } from '../../src/utils/status-feedback';
 
 describe('StatusFeedback', () => {
   beforeEach(() => {

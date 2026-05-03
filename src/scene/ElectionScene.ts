@@ -188,7 +188,10 @@ export class ElectionScene {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 128;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return new THREE.Sprite();
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = 'bold 36px "Segoe UI", system-ui, sans-serif';

@@ -12,7 +12,7 @@ import { ElectionCoachService } from '../services/gemini';
 import { sanitizeFull } from '../utils/sanitize';
 import { validateCoachQuery } from '../utils/validate';
 import { announce, generateA11yId } from '../utils/a11y';
-import { StatusFeedback } from '../utils/StatusFeedback';
+import { StatusFeedback } from '../utils/status-feedback';
 
 /** Minimum interval between chat submissions (ms). */
 const SUBMIT_DEBOUNCE_MS = 500;

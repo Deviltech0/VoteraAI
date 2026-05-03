@@ -1,16 +1,10 @@
 /**
- * Surgical coverage filler tests — targets EVERY remaining uncovered branch and line.
+ * Edge-Case Tests — Boundary conditions, error paths, and null guards.
  *
- * Current gaps to fix:
- *   maps.ts        → lines 64-65 (isLoaded early return), 139-140 (cache hit),
- *                    199-202 (fallback values in Places callback), 175-195 (error statuses)
- *   analytics.ts   → line 160 (entities present), 165-167 (catch), 260-267 (sentiment),
- *                    279-283 (session fallback)
- *   api-client.ts  → line 110 (?? 1), line 141 (non-Error thrown), line 147 (timeout)
- *   election-stages.ts → line 423 (getStagePosition -1)
- *   gemini.ts      → lines 364 (tool non-success), 369 (empty responseText || null)
- *   sanitize.ts    → line 31 (escapeHtml)
- *   vertex.ts      → lines 222-225 (cosineSimilarity), 227 b[i]??0
+ * Exercises defensive branches across all service modules to ensure
+ * graceful degradation under unexpected inputs and failure states.
+ *
+ * @module tests/unit/edge-cases
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ElectionMapsService } from '../../src/services/maps';
@@ -23,7 +17,7 @@ import { sanitizeUrl, escapeHtml } from '../../src/utils/sanitize';
 import { validateStageId } from '../../src/utils/validate';
 import { getStagePosition } from '../../src/data/election-stages';
 
-describe('Coverage Filler Tests', () => {
+describe('Edge-Case Tests', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

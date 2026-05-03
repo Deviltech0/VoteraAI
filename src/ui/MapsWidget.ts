@@ -10,7 +10,7 @@
 import { ElectionMapsService } from '../services/maps';
 import { escapeHtml, sanitizeFull } from '../utils/sanitize';
 import { announce } from '../utils/a11y';
-import { StatusFeedback } from '../utils/StatusFeedback';
+import { StatusFeedback } from '../utils/status-feedback';
 
 /**
  * Maps-based polling location finder widget.
@@ -34,6 +34,7 @@ export class MapsWidget {
       if (container) {
         container.style.display = 'block';
         container.style.height = '400px';
+        // SAFE: Empty string assignment is inherently safe from XSS.
         container.innerHTML = ''; // clear comment
         this.maps.initMap('maps-embed-container');
       }
@@ -56,6 +57,7 @@ export class MapsWidget {
     widget.setAttribute('role', 'region');
     widget.setAttribute('aria-label', 'Find polling locations using Google Maps');
 
+    // SAFE: Static HTML template, no user data interpolated.
     widget.innerHTML = `
       <h3 style="color: var(--navy); margin-bottom: var(--space-3);">
         📍 Find Election Offices & Polling Booths
@@ -135,6 +137,7 @@ export class MapsWidget {
       return;
     }
 
+    // SAFE: Static HTML template, no user data interpolated.
     results.innerHTML =
       '<p style="text-align: center; color: var(--text-muted); padding: var(--space-4);">🔍 Searching for polling locations...</p>';
     announce('Searching for polling locations near ' + sanitised);
@@ -168,6 +171,7 @@ export class MapsWidget {
   ): void {
     const cards = locations.map((loc) => this.renderLocationCard(loc)).join('');
 
+    // SAFE: Content is escaped via escapeHtml before interpolation.
     container.innerHTML = `
       <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-3);">
         Found ${locations.length} result(s) for "${escapeHtml(query)}"
@@ -222,6 +226,7 @@ export class MapsWidget {
 
     if (!isNativeMap) {
       const embedUrl = this.maps.generateMapsEmbedUrl(query);
+      // SAFE: Content is escaped via escapeHtml before interpolation.
       embedContainer.innerHTML = `
         <iframe
           src="${escapeHtml(embedUrl)}"
@@ -247,6 +252,7 @@ export class MapsWidget {
    * @param errorMsg - Error message to display (will be escaped).
    */
   private renderErrorState(container: HTMLElement, errorMsg: string | null): void {
+    // SAFE: Content is escaped via escapeHtml before interpolation.
     container.innerHTML = `
       <div style="text-align: center; padding: var(--space-4); color: var(--text-muted);">
         <p style="color: #ef4444; margin-bottom: var(--space-2); font-weight: 500;">
