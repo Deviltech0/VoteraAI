@@ -139,6 +139,7 @@ export class TranslationWidget {
         }
       });
       this.currentLang = 'en';
+      document.documentElement.lang = 'en';
       announce('Restored to English.');
       return;
     }
@@ -159,6 +160,7 @@ export class TranslationWidget {
     }
 
     this.currentLang = targetLang;
+    document.documentElement.lang = targetLang;
     if (main) {
       main.removeAttribute('aria-busy');
     }

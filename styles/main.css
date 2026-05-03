@@ -591,15 +591,70 @@ input[type="text"]:focus, input[type="number"]:focus {
 /* ---- Reduced Motion ---- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
   .animate-in { opacity: 1; transform: none; }
 }
 
 /* ---- High Contrast ---- */
 @media (prefers-contrast: high) {
-  :root { --text-secondary: #e2e8f0; --border-subtle: rgba(255,255,255,0.3); }
+  :root {
+    --text-secondary: #e2e8f0;
+    --text-muted: #cbd5e1;
+    --border-subtle: rgba(255,255,255,0.3);
+  }
+  .btn, .card, .nav-link, .coach-input, input, select {
+    border-width: 2px;
+  }
 }
+
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: rgba(0, 0, 0, 0.5);
+    --text-muted: rgba(0, 0, 0, 0.8);
+  }
+  [data-theme="light"] {
+    --border-subtle: rgba(0, 0, 0, 0.5);
+    --text-muted: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* ---- Forced Colors (Windows High Contrast) ---- */
+@media (forced-colors: active) {
+  .btn, .card, .nav-link, .coach-input, input, select {
+    border: 2px solid ButtonText;
+  }
+  .btn-primary {
+    background: ButtonFace;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+  .btn-primary:hover {
+    background: Highlight;
+    color: HighlightText;
+  }
+  a { color: LinkText; }
+  .skip-link { background: Canvas; color: CanvasText; border: 2px solid CanvasText; }
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+  .hero-badge, .coach-assistant, .coach-user {
+    border: 1px solid CanvasText;
+  }
+  .scroll-progress { background: Highlight; }
+}
+
+/* ---- Enhanced Focus Indicators ---- */
+:focus-visible {
+  outline: 3px solid var(--saffron, #FF9933);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+:focus:not(:focus-visible) { outline: none; }
 
 /* ---- Print ---- */
 @media print {
@@ -608,4 +663,3 @@ input[type="text"]:focus, input[type="number"]:focus {
   body { background: #fff; color: #000; }
   section { page-break-inside: avoid; }
 }
-

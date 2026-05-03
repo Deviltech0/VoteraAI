@@ -28,6 +28,9 @@ const HTML_ESCAPE_REGEX = /[&<>"'/`]/g;
  * @returns HTML-safe string.
  */
 export function escapeHtml(input: string): string {
+  if (typeof input !== 'string') {
+    return '';
+  }
   return input.replace(HTML_ESCAPE_REGEX, (char) => HTML_ESCAPE_MAP[char] as string);
 }
 
@@ -71,7 +74,7 @@ export function sanitizeUrl(url: string): string {
     return '';
   }
   const trimmed = url.trim();
-  const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+  const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:'];
 
   try {
     const parsed = new URL(trimmed);

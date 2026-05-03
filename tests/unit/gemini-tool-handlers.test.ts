@@ -1,177 +1,106 @@
 /**
- * Gemini Tool Handler Tests — Deep coverage for all processToolCall paths.
+ * Gemini Tool Handler Tests — Tests for tool call dispatch.
  *
- * Tests each extracted tool handler method individually and verifies
- * error handling, unknown tool rejection, and service integration.
+ * Verifies each tool handler routes correctly and handles edge cases.
+ *
+ * @module tests/unit/gemini-tool-handlers
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ElectionCoachService, ELECTION_TOOLS } from '../../src/services/gemini';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { GeminiToolHandlers } from '../../src/services/gemini-tool-handlers';
+import { ElectionTranslationService } from '../../src/services/translation';
+import { ElectionMapsService } from '../../src/services/maps';
+import { ElectionVertexService } from '../../src/services/vertex';
 
-// Mock import.meta.env
-vi.stubEnv('VITE_GEMINI_API_KEY', '');
-vi.stubEnv('VITE_GEMINI_KEY', '');
-vi.stubEnv('VITE_GEMINI_MODEL', 'gemini-1.5-flash');
-vi.stubEnv('VITE_GOOGLE_TRANSLATION_API_KEY', '');
-vi.stubEnv('VITE_GOOGLE_MAPS_API_KEY', '');
-vi.stubEnv('VITE_GOOGLE_MAPS_KEY', '');
-vi.stubEnv('VITE_GOOGLE_CLOUD_API_KEY', '');
-
-describe('ElectionCoachService — Tool Handlers', () => {
-  let coach: ElectionCoachService;
+describe('GeminiToolHandlers — processToolCall()', () => {
+  let handlers: GeminiToolHandlers;
 
   beforeEach(() => {
-    coach = new ElectionCoachService();
+    handlers = new GeminiToolHandlers(
+      new ElectionTranslationService(),
+      new ElectionMapsService(),
+      new ElectionVertexService(),
+    );
   });
 
-  describe('ELECTION_TOOLS declarations', () => {
-    it('exports exactly 5 tool declarations', () => {
-      expect(ELECTION_TOOLS).toHaveLength(5);
+  it('handles unknown tool names with error status', async () => {
+    const result = await handlers.processToolCall({
+      name: 'nonexistent_tool',
+      args: {},
     });
-
-    it('each tool has name, description, and parameters', () => {
-      for (const tool of ELECTION_TOOLS) {
-        expect(tool.name).toBeTruthy();
-        expect(tool.description).toBeTruthy();
-        expect(tool.parameters.type).toBe('object');
-        expect(tool.parameters.required.length).toBeGreaterThan(0);
-      }
-    });
-
-    it('translate_text tool requires text and targetLang', () => {
-      const tool = ELECTION_TOOLS.find((t) => t.name === 'translate_text');
-      expect(tool?.parameters.required).toContain('text');
-      expect(tool?.parameters.required).toContain('targetLang');
-    });
-
-    it('find_polling_location requires query', () => {
-      const tool = ELECTION_TOOLS.find((t) => t.name === 'find_polling_location');
-      expect(tool?.parameters.required).toContain('query');
-    });
-
-    it('check_voter_eligibility requires age', () => {
-      const tool = ELECTION_TOOLS.find((t) => t.name === 'check_voter_eligibility');
-      expect(tool?.parameters.required).toContain('age');
-    });
+    expect(result.status).toBe('error');
+    expect(String(result.result)).toContain('Unknown tool');
+    expect(result.toolName).toBe('nonexistent_tool');
   });
 
-  describe('isConfigured', () => {
-    it('returns false when no API key set', () => {
-      expect(coach.isConfigured()).toBe(false);
+  it('handles check_voter_eligibility with valid age', async () => {
+    const result = await handlers.processToolCall({
+      name: 'check_voter_eligibility',
+      args: { age: 25, is_indian_citizen: true },
     });
+    expect(result.status).toBe('success');
+    expect(result.result).toBeTruthy();
   });
 
-  describe('chat — fallback mode', () => {
-    it('returns eligibility response for eligibility query', async () => {
-      const msg = await coach.chat('Am I eligible to vote at age 17?');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('18');
+  it('handles check_voter_eligibility with underage', async () => {
+    const result = await handlers.processToolCall({
+      name: 'check_voter_eligibility',
+      args: { age: 16 },
     });
-
-    it('returns registration response for registration query', async () => {
-      const msg = await coach.chat('How do I register to vote?');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Form 6');
-    });
-
-    it('returns EVM response for EVM query', async () => {
-      const msg = await coach.chat('Tell me about EVM machines');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Electronic Voting');
-    });
-
-    it('returns NOTA response for NOTA query', async () => {
-      const msg = await coach.chat('What is NOTA?');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('NOTA');
-    });
-
-    it('returns booth response for booth query', async () => {
-      const msg = await coach.chat('Where is my polling booth?');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('booth');
-    });
-
-    it('returns Lok Sabha response', async () => {
-      const msg = await coach.chat('Tell me about Lok Sabha');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Lok Sabha');
-    });
-
-    it('returns panchayat response', async () => {
-      const msg = await coach.chat('How do panchayat elections work?');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Panchayat');
-    });
-
-    it('returns municipal response', async () => {
-      const msg = await coach.chat('Tell me about nagar elections');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Municipal');
-    });
-
-    it('returns default welcome for unknown query', async () => {
-      const msg = await coach.chat('Hello there');
-      expect(msg.role).toBe('assistant');
-      expect(msg.content).toContain('Votera AI');
-    });
-
-    it('returns cached response for repeated query', async () => {
-      const msg1 = await coach.chat('What is NOTA?');
-      const msg2 = await coach.chat('What is NOTA?');
-      expect(msg1.content).toBe(msg2.content);
-    });
+    expect(result.status).toBe('success');
+    expect(result.result).toBeTruthy();
   });
 
-  describe('conversation history', () => {
-    it('getHistory returns message array', () => {
-      expect(coach.getHistory()).toEqual([]);
+  it('handles check_voter_eligibility with non-citizen flag', async () => {
+    const result = await handlers.processToolCall({
+      name: 'check_voter_eligibility',
+      args: { age: 25, is_indian_citizen: false },
     });
-
-    it('clearHistory resets history', async () => {
-      await coach.chat('test');
-      expect(coach.getHistory().length).toBeGreaterThan(0);
-      coach.clearHistory();
-      expect(coach.getHistory()).toEqual([]);
-    });
-
-    it('history includes user and assistant messages', async () => {
-      await coach.chat('Hello');
-      const history = coach.getHistory();
-      const roles = history.map((m) => m.role);
-      expect(roles).toContain('user');
-      expect(roles).toContain('assistant');
-    });
+    expect(result.status).toBe('success');
+    expect(String(result.result)).toContain('Indian citizens');
   });
 
-  describe('message creation', () => {
-    it('creates messages with unique IDs', async () => {
-      const msg1 = await coach.chat('test 1');
-      const msg2 = await coach.chat('test 2');
-      expect(msg1.id).not.toBe(msg2.id);
+  it('handles get_election_timeline', async () => {
+    const result = await handlers.processToolCall({
+      name: 'get_election_timeline',
+      args: { election_type: 'LOK_SABHA' },
     });
-
-    it('creates messages with timestamps', async () => {
-      const msg = await coach.chat('test');
-      expect(msg.timestamp).toBeGreaterThan(0);
-    });
+    expect(result.status).toBe('success');
+    expect(String(result.result).length).toBeGreaterThan(0);
   });
 
-  describe('input sanitization', () => {
-    it('sanitises HTML in user input', async () => {
-      const msg = await coach.chat('<script>alert("xss")</script>');
-      expect(msg.content).not.toContain('<script>');
+  it('handles find_polling_location with fallback', async () => {
+    const result = await handlers.processToolCall({
+      name: 'find_polling_location',
+      args: { query: 'polling booth Mumbai' },
     });
+    expect(result.status).toBe('success');
+    expect(result.result).toBeTruthy();
+  });
 
-    it('handles empty input gracefully', async () => {
-      const msg = await coach.chat('');
-      expect(msg.role).toBe('assistant');
+  it('handles lookup_election_faq', async () => {
+    const result = await handlers.processToolCall({
+      name: 'lookup_election_faq',
+      args: { search_query: 'What is NOTA?' },
     });
+    expect(result.status).toBe('success');
+  });
 
-    it('handles very long input', async () => {
-      const longInput = 'a'.repeat(3000);
-      const msg = await coach.chat(longInput);
-      expect(msg.role).toBe('assistant');
+  it('handles translate_text gracefully when unconfigured', async () => {
+    const result = await handlers.processToolCall({
+      name: 'translate_text',
+      args: { text: 'Hello', targetLang: 'hi' },
     });
+    expect(result.status).toBe('success');
+    expect(result.toolName).toBe('translate_text');
+  });
+
+  it('preserves args in the result object', async () => {
+    const args = { age: 30 };
+    const result = await handlers.processToolCall({
+      name: 'check_voter_eligibility',
+      args,
+    });
+    expect(result.args).toEqual(args);
   });
 });

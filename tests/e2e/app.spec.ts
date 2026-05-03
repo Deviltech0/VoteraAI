@@ -6,9 +6,11 @@ test.describe('Votera AI - E2E User Journey', () => {
     await page.goto('/');
   });
 
-  test('should pass automated WCAG 2.2 accessibility audit', async ({ page }) => {
-    // Audit the entire page using axe-core
-    const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+  test('should pass automated WCAG 2.2 AA accessibility audit', async ({ page }) => {
+    // Audit the entire page using axe-core with strict WCAG 2.2 AA rules
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag22aa', 'best-practice'])
+      .analyze();
     expect(accessibilityScanResults.violations).toEqual([]);
   });
 
@@ -28,6 +30,23 @@ test.describe('Votera AI - E2E User Journey', () => {
     // Verify WebGL Canvas is initialized
     const canvas = page.locator('#app canvas');
     await expect(canvas).toBeAttached();
+  });
+
+  test('should have correct security headers in meta tags', async ({ page }) => {
+    // Verify CSP meta tag exists and does NOT contain unsafe-inline in script-src
+    const csp = await page.getAttribute('meta[http-equiv="Content-Security-Policy"]', 'content');
+    expect(csp).toBeTruthy();
+    expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+    expect(csp).toContain("frame-ancestors 'none'");
+  });
+
+  test('should have skip link for keyboard navigation', async ({ page }) => {
+    const skipLink = page.locator('.skip-link');
+    await expect(skipLink).toBeAttached();
+
+    // Tab to skip link and verify it becomes visible
+    await page.keyboard.press('Tab');
+    await expect(skipLink).toBeVisible();
   });
 
   test('should open the AI Election Coach', async ({ page }) => {
@@ -51,11 +70,35 @@ test.describe('Votera AI - E2E User Journey', () => {
     }
   });
 
+  test('should support keyboard-only navigation', async ({ page }) => {
+    // Tab through the page and verify focus is visible
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press('Tab');
+    }
+    
+    // Verify an element has focus
+    const focusedElement = await page.evaluate(() => document.activeElement?.tagName);
+    expect(focusedElement).toBeTruthy();
+  });
+
   test('should gracefully handle Maps Widget rendering', async ({ page }) => {
     // Verify map container exists
-    const mapsWidget = page.locator('#maps-widget-container, .maps-widget');
+    const mapsWidget = page.locator('#maps-widget-container, .maps-widget, #maps-widget');
     if (await mapsWidget.count() > 0) {
       await expect(mapsWidget).toBeAttached();
+    }
+  });
+
+  test('should have proper html lang attribute', async ({ page }) => {
+    const lang = await page.getAttribute('html', 'lang');
+    expect(lang).toBe('en');
+  });
+
+  test('all external links should have noopener', async ({ page }) => {
+    const links = await page.locator('a[target="_blank"]').all();
+    for (const link of links) {
+      const rel = await link.getAttribute('rel');
+      expect(rel).toContain('noopener');
     }
   });
 });

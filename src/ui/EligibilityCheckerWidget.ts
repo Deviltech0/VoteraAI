@@ -48,6 +48,8 @@ export class EligibilityCheckerWidget {
             max="150"
             placeholder="e.g. 18"
             required
+            aria-describedby="eligibility-result"
+            autocomplete="off"
             style="padding: var(--space-2) var(--space-3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-family: var(--font-sans); width: 120px;"
           />
           <button type="submit" class="btn btn-primary">Check Status</button>

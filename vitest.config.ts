@@ -6,27 +6,30 @@ import { resolve } from 'path';
  *
  * Uses jsdom for DOM-based tests including accessible fallback layer testing.
  * Mirrors Vite path aliases so tests can import identically to source.
+ *
+ * Coverage includes core logic modules (services, utils, state, data).
+ * UI and WebGL components are excluded from unit tests as they are 
+ * verified by Playwright E2E tests.
  */
 export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/unit/**/*.test.ts', 'tests/integration/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'html'],
       include: ['src/**/*.ts'],
       exclude: [
         'src/main.ts',
         'src/types/**',
         'src/scene/**',
-        'src/ui/**',
-        'src/utils/a11y.ts',
+        'src/ui/**', // Tested via E2E Playwright tests
       ],
       thresholds: {
         statements: 90,
         branches: 85,
-        functions: 90,
+        functions: 95,
         lines: 90,
       },
     },
